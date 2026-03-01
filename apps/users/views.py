@@ -12,6 +12,11 @@ from .serializers import RegisterSerializer, UserSerializer, UserPreferencesSeri
 
 User = get_user_model()
 
+from django.http import JsonResponse
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})
+
 
 class RegisterView(generics.CreateAPIView):
     queryset         = User.objects.all()

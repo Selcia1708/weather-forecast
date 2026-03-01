@@ -7,6 +7,11 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Location
 from .serializers import LocationSerializer, LocationCreateSerializer
 
+from django.http import JsonResponse
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})
+
 
 class LocationListCreateView(generics.ListCreateAPIView):
     """List all user locations or add a new one."""

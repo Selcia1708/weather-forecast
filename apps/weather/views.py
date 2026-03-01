@@ -17,6 +17,11 @@ from .serializers import (
 
 logger = logging.getLogger(__name__)
 
+from django.http import JsonResponse
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})
+
 
 # ── HTML dashboard ────────────────────────────────────────────────────────
 

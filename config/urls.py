@@ -7,6 +7,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
 
+from apps.core.views import health_check
+urlpatterns = [
+    ...
+    path("health/", health_check),
+]
+
 urlpatterns = [
     path('admin/',          admin.site.urls),
     path('rosetta/',        include('rosetta.urls')),
