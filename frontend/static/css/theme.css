@@ -1,0 +1,769 @@
+/* ═══════════════════════════════════════════════════════════════════
+   WeatherSense – theme.css
+   Supports: light mode, dark mode (auto + manual), day/night card bg,
+   RTL layout, PWA safe-areas.
+═══════════════════════════════════════════════════════════════════ */
+
+
+/* ── CSS Custom Properties ──────────────────────────────────────── */
+
+:root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #e8edf3;
+    --border: #d1d9e0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --accent: #3b82f6;
+    --accent-dark: #1d4ed8;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #22c55e;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0, 0, 0, .08);
+    --transition: 0.3s ease;
+    --topbar-h: 64px;
+}
+
+[data-theme="dark"],
+.dark-mode {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #273449;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --shadow: 0 4px 24px rgba(0, 0, 0, .4);
+}
+
+
+/* ── Reset ──────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: background var(--transition), color var(--transition);
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+button,
+select,
+input {
+    font: inherit;
+}
+
+
+/* ── Topbar ──────────────────────────────────────────────────────── */
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    height: var(--topbar-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+}
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -.5px;
+    color: var(--accent);
+    white-space: nowrap;
+}
+
+.search-wrap {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+    display: flex;
+    gap: 6px;
+}
+
+.search-wrap input {
+    flex: 1;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+    transition: border-color var(--transition);
+}
+
+.search-wrap input:focus {
+    border-color: var(--accent);
+}
+
+.dropdown {
+    position: absolute;
+    top: 44px;
+    left: 0;
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    list-style: none;
+    z-index: 200;
+    overflow: hidden;
+}
+
+.dropdown.hidden {
+    display: none;
+}
+
+.dropdown li {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.dropdown li:hover {
+    background: var(--surface2);
+}
+
+.topbar-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+}
+
+.btn-icon {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background .2s;
+}
+
+.btn-icon:hover {
+    background: var(--border);
+}
+
+select {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+}
+
+
+/* ── Alert Banner ────────────────────────────────────────────────── */
+
+.alert-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: #fef3c7;
+    color: #92400e;
+    border-bottom: 2px solid #f59e0b;
+    font-weight: 500;
+    font-size: .95rem;
+    animation: slideDown .4s ease;
+}
+
+.alert-banner.severe {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: var(--danger);
+}
+
+.alert-banner.extreme {
+    background: #7f1d1d;
+    color: #fca5a5;
+    border-color: #ef4444;
+}
+
+.alert-banner.hidden {
+    display: none;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: none;
+        opacity: 1;
+    }
+}
+
+
+/* ── Main Grid ───────────────────────────────────────────────────── */
+
+.grid {
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-areas: "current   metrics    aqi" "chart     chart      chart" "forecast  forecast   forecast" "map       map        map" "lifestyle lifestyle  lifestyle" "locations locations  locations";
+}
+
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr;
+        grid-template-areas: none;
+    }
+}
+
+
+/* ── Cards ───────────────────────────────────────────────────────── */
+
+.card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    transition: transform .2s, box-shadow .2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .12);
+}
+
+.card-title {
+    font-size: .85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+}
+
+
+/* ── Current Card ────────────────────────────────────────────────── */
+
+.current-card {
+    grid-area: current;
+    min-height: 280px;
+}
+
+.day-night-bg {
+    position: absolute;
+    inset: 0;
+    opacity: .15;
+    transition: background 2s ease, opacity 1s;
+    pointer-events: none;
+}
+
+.day-night-bg.day {
+    background: linear-gradient(135deg, #fbbf24, #f97316);
+}
+
+.day-night-bg.night {
+    background: linear-gradient(135deg, #1e3a8a, #0f172a);
+}
+
+.card-inner {
+    position: relative;
+    z-index: 1;
+}
+
+.city-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.date-time {
+    font-size: .85rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.temp-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0 8px;
+}
+
+.temp-big {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.description {
+    font-size: 1rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    color: var(--text-muted);
+}
+
+.feels-like {
+    font-size: .9rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.hi-lo {
+    display: flex;
+    gap: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.sunrise-sunset {
+    margin-top: 10px;
+    font-size: .85rem;
+    color: var(--text-muted);
+}
+
+
+/* ── Metrics ─────────────────────────────────────────────────────── */
+
+.metrics-card {
+    grid-area: metrics;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.metric-cell {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.metric-icon {
+    font-size: 1.2rem;
+}
+
+.metric-label {
+    font-size: .72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.metric-cell strong {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+
+/* ── AQI ─────────────────────────────────────────────────────────── */
+
+.aqi-card {
+    grid-area: aqi;
+}
+
+.aqi-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.aqi-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+    transition: background-color .5s;
+}
+
+.aqi-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.aqi-guidance {
+    font-size: .82rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.aqi-components {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: .8rem;
+    color: var(--text-muted);
+}
+
+.aqi-components span strong {
+    color: var(--text);
+}
+
+
+/* ── Charts ──────────────────────────────────────────────────────── */
+
+.chart-card {
+    grid-area: chart;
+}
+
+.chart-card canvas {
+    max-height: 200px;
+}
+
+
+/* ── 7-Day Strip ─────────────────────────────────────────────────── */
+
+.forecast-card {
+    grid-area: forecast;
+}
+
+.forecast-strip {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+}
+
+.day-card {
+    flex: 0 0 100px;
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    font-size: .85rem;
+}
+
+.day-card .day-name {
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.day-card img {
+    margin: 0 auto 6px;
+    width: 40px;
+    height: 40px;
+}
+
+.day-card .rain-prob {
+    color: var(--accent);
+    font-size: .75rem;
+    margin-top: 4px;
+}
+
+
+/* ── Radar Map ───────────────────────────────────────────────────── */
+
+.map-card {
+    grid-area: map;
+}
+
+#radarMap {
+    height: 320px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.map-layer-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.map-btn {
+    padding: 6px 14px;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    font-size: .8rem;
+    transition: background .2s, color .2s;
+}
+
+.map-btn.active,
+.map-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent-dark);
+}
+
+
+/* ── Lifestyle ───────────────────────────────────────────────────── */
+
+.lifestyle-card {
+    grid-area: lifestyle;
+}
+
+
+/*
+ * Three equal columns: Clothing | Outdoor | Sun Safety
+ * Each column is a self-contained pill-card, matching the visual
+ * weight of the 7-day forecast strip.
+ */
+
+.lifestyle-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 700px) {
+    .lifestyle-strip {
+        grid-template-columns: 1fr;
+    }
+}
+
+.lifestyle-col {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lifestyle-col-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--text-muted);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.lifestyle-col-header .ls-icon {
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+
+/* Individual recommendation items inside each column */
+
+.lifestyle-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: .875rem;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.lifestyle-item::before {
+    content: '•';
+    color: var(--accent);
+    font-size: 1rem;
+    line-height: 1.5;
+    flex-shrink: 0;
+}
+
+
+/* Sun safety is a single string, not a list — style it as a badge */
+
+.lifestyle-sun-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--text);
+    width: 100%;
+}
+
+.lifestyle-sun-badge.uv-low {
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.lifestyle-sun-badge.uv-mod {
+    border-color: var(--warning);
+    color: var(--warning);
+}
+
+.lifestyle-sun-badge.uv-high {
+    border-color: #f97316;
+    color: #f97316;
+}
+
+.lifestyle-sun-badge.uv-vhigh {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.lifestyle-sun-badge.uv-extreme {
+    border-color: #7c3aed;
+    color: #7c3aed;
+}
+
+
+/* ── Locations ───────────────────────────────────────────────────── */
+
+.locations-card {
+    grid-area: locations;
+}
+
+.locations-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.locations-list li {
+    padding: 8px 14px;
+    background: var(--surface2);
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: .875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    transition: background .2s;
+}
+
+.locations-list li:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background .2s;
+}
+
+.btn-primary:hover {
+    background: var(--accent-dark);
+}
+
+
+/* ── Loading Overlay ─────────────────────────────────────────────── */
+
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .7);
+    display: grid;
+    place-items: center;
+    z-index: 999;
+    flex-direction: column;
+    gap: 16px;
+    color: #fff;
+}
+
+.loading-overlay.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(255, 255, 255, .2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ── Toast ───────────────────────────────────────────────────────── */
+
+.toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: #f1f5f9;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-size: .9rem;
+    box-shadow: var(--shadow);
+    z-index: 500;
+    animation: fadeIn .3s ease;
+}
+
+.toast.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+
+/* ── RTL support ─────────────────────────────────────────────────── */
+
+[dir="rtl"] .topbar {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .topbar-controls {
+    margin-left: 0;
+    margin-right: auto;
+}

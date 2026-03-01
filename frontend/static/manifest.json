@@ -1,0 +1,14 @@
+{
+    "name": "WeatherSense",
+    "short_name": "Weather",
+    "description": "Real-time weather forecasts, radar & severe alerts",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#3b82f6",
+    "orientation": "any",
+    "icons": [
+        { "src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    ]
+}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %} {% load i18n static %} {% block title %}WeatherSense – {% trans "Real-Time Dashboard" %}{% endblock %} {% block content %}
+<!-- ── Top Bar ─────────────────────────────────────────────────────── -->
+<header class="topbar">
+    <div class="logo">🌦 WeatherSense</div>
+
+    <div class="search-wrap">
+        <input id="citySearch" type="search" placeholder="{% trans 'Search city...' %}" aria-label="{% trans 'City search' %}" autocomplete="off" />
+        <button class="btn-icon" onclick="searchLocation()" aria-label="Search">🔍</button>
+        <ul id="searchDropdown" class="dropdown hidden"></ul>
+    </div>
+
+    <div class="topbar-controls">
+        <select id="unitSelect" aria-label="Units" onchange="reloadData()">
+      <option value="metric">°C / m/s</option>
+      <option value="imperial">°F / mph</option>
+    </select>
+        <button class="btn-icon" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+    </div>
+</header>
+
+<!-- ── Main Dashboard Grid ─────────────────────────────────────────── -->
+<main class="grid" id="dashGrid">
+
+    <!-- ① Current Conditions Card -->
+    <section class="card current-card" id="currentCard" aria-label="Current weather">
+        <div class="day-night-bg" id="dayNightBg" aria-hidden="true"></div>
+        <div class="card-inner">
+            <div class="city-name" id="cityName">–</div>
+            <div class="date-time" id="localTime">–</div>
+            <div class="temp-row">
+                <img id="weatherIcon" src="" alt="Weather icon" width="80" height="80" />
+                <span class="temp-big" id="tempValue">–</span>
+            </div>
+            <div class="description" id="description">–</div>
+            <div class="feels-like" id="feelsLike">{% trans "Feels like" %}: –</div>
+            <div class="hi-lo">
+                <span>↑ <span id="tempMax">–</span></span>
+                <span>↓ <span id="tempMin">–</span></span>
+            </div>
+            <div class="sunrise-sunset">
+                🌅 <span id="sunrise">–</span> &nbsp;&nbsp; 🌇 <span id="sunset">–</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ② Metrics Grid -->
+    <section class="card metrics-card" aria-label="Weather metrics">
+        <h2 class="card-title">{% trans "Conditions" %}</h2>
+        <div class="metrics-grid">
+            <div class="metric-cell"><span class="metric-icon">💧</span><span class="metric-label">{% trans "Humidity" %}</span><strong id="humidity">–</strong></div>
+            <div class="metric-cell"><span class="metric-icon">🌡</span><span class="metric-label">{% trans "Dew Point" %}</span><strong id="dewPoint">–</strong></div>
+            <div class="metric-cell"><span class="metric-icon">💨</span><span class="metric-label">{% trans "Wind" %}</span><strong id="wind">–</strong></div>
+            <div class="metric-cell"><span class="metric-icon">🌬</span><span class="metric-label">{% trans "Gusts" %}</span><strong id="gusts">–</strong></div>
+            <div class="metric-cell"><span class="metric-icon">🔭</span><span class="metric-label">{% trans "Visibility" %}</span><strong id="visibility">–</strong></div>
+            <div class="metric-cell"><span class="metric-icon">📊</span><span class="metric-label">{% trans "Pressure" %}</span><strong id="pressure">–</strong></div>
+            <div class="metric-cell"><span class="metric-icon">☀️</span><span class="metric-label">{% trans "UV Index" %}</span><strong id="uvIndex">–</strong></div>
+            <div class="metric-cell"><span class="metric-icon">🌧</span><span class="metric-label">{% trans "Rain/hr" %}</span><strong id="rain">–</strong></div>
+            <div class="metric-cell"><span class="metric-icon">❄️</span><span class="metric-label">{% trans "Snow/hr" %}</span><strong id="snow">–</strong></div>
+            <div class="metric-cell"><span class="metric-icon">☁️</span><span class="metric-label">{% trans "Cloud Cover" %}</span><strong id="cloudCover">–</strong></div>
+        </div>
+    </section>
+
+    <!-- ③ AQI Card -->
+    <section class="card aqi-card" aria-label="Air quality">
+        <h2 class="card-title">{% trans "Air Quality Index" %}</h2>
+        <div class="aqi-main">
+            <div class="aqi-circle" id="aqiCircle">–</div>
+            <div>
+                <div class="aqi-label" id="aqiLabel">–</div>
+                <div class="aqi-guidance" id="aqiGuidance">–</div>
+            </div>
+        </div>
+        <div class="aqi-components">
+            <span>PM2.5: <strong id="pm25">–</strong></span>
+            <span>PM10: <strong id="pm10">–</strong></span>
+            <span>O₃: <strong id="o3">–</strong></span>
+            <span>NO₂: <strong id="no2">–</strong></span>
+            <span>SO₂: <strong id="so2">–</strong></span>
+            <span>CO: <strong id="co">–</strong></span>
+        </div>
+    </section>
+
+    <!-- ④ Hourly Chart -->
+    <section class="card chart-card" aria-label="Hourly forecast chart">
+        <h2 class="card-title">{% trans "24-Hour Forecast" %}</h2>
+        <canvas id="hourlyChart" role="img" aria-label="Hourly temperature and rain chart"></canvas>
+    </section>
+
+    <!-- ⑤ 7-Day Forecast Strip -->
+    <section class="card forecast-card" aria-label="7-day forecast">
+        <h2 class="card-title">{% trans "7-Day Forecast" %}</h2>
+        <div class="forecast-strip" id="forecastStrip" role="list"></div>
+    </section>
+
+    <!-- ⑥ Radar Map -->
+    <section class="card map-card" aria-label="Radar map">
+        <h2 class="card-title">{% trans "Weather Radar" %}</h2>
+        <div id="radarMap" role="application" aria-label="Interactive radar map"></div>
+    </section>
+
+    <!-- ⑦ Lifestyle Advice -->
+    <section class="card lifestyle-card" aria-label="Lifestyle recommendations">
+        <h2 class="card-title">{% trans "Today's Recommendations" %}</h2>
+        <div id="lifestyleContent">
+            <p>{% trans "Loading recommendations..." %}</p>
+        </div>
+    </section>
+
+</main>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="loading-overlay hidden" aria-hidden="true">
+    <div class="spinner"></div>
+    <p>{% trans "Fetching weather data..." %}</p>
+</div>
+{% endblock %}

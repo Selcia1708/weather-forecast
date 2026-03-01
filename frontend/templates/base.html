@@ -1,0 +1,38 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="description" content="{% trans 'Real-time weather forecasts, radar maps, AQI and severe weather alerts.' %}" />
+
+    <title>{% block title %}WeatherSense{% endblock %}</title>
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="{% static 'manifest.json' %}" />
+    <link rel="icon" href="{% static 'icons/favicon.ico' %}" />
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}" /> {% block extra_head %}{% endblock %}
+</head>
+
+<body class="app" id="appBody">
+
+    {% include 'partials/alert_banner.html' %} {% block content %}{% endblock %}
+
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'js/map.js' %}"></script>
+    <script src="{% static 'js/charts.js' %}"></script>
+    <script src="{% static 'js/realtime.js' %}"></script> {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>
