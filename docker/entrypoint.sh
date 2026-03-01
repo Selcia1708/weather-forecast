@@ -1,14 +1,18 @@
 #!/bin/bash
 # ══════════════════════════════════════════════════════════════════════════
-# entrypoint.sh  —  Railway start command: bash entrypoint.sh
+# docker/entrypoint.sh  —  Railway start command: bash docker/entrypoint.sh
 # ══════════════════════════════════════════════════════════════════════════
 
-# Force Python stdout/stderr to be unbuffered so Railway captures every line
 export PYTHONUNBUFFERED=1
 export PYTHONDONTWRITEBYTECODE=1
-
-# Force the correct settings module — never rely on Railway injecting this
 export DJANGO_SETTINGS_MODULE=config.settings.production
+
+# ── Normalise variable names ───────────────────────────────────────────────
+# Railway shared variables may be named SECRET_KEY instead of DJANGO_SECRET_KEY
+# Accept either form and normalise to what Django expects.
+if [ -z "$DJANGO_SECRET_KEY" ] && [ -n "$SECRET_KEY" ]; then
+    export DJANGO_SECRET_KEY="$SECRET_KEY"
+fi
 
 echo "========================================"
 echo " Weather Platform — Startup"
@@ -16,17 +20,17 @@ echo " DJANGO_SETTINGS_MODULE: $DJANGO_SETTINGS_MODULE"
 echo " PORT: ${PORT:-8000}"
 echo "========================================"
 
-# ── Validate required env vars before doing anything ─────────────────────
+# ── Validate required env vars ─────────────────────────────────────────────
 MISSING=""
 
 if [ -z "$DJANGO_SECRET_KEY" ]; then
-    MISSING="$MISSING\n  - DJANGO_SECRET_KEY"
+    MISSING="$MISSING\n  - DJANGO_SECRET_KEY  (or SECRET_KEY)"
 fi
 if [ -z "$DATABASE_URL" ]; then
     MISSING="$MISSING\n  - DATABASE_URL  (add a PostgreSQL plugin in Railway)"
 fi
 if [ -z "$REDIS_URL" ]; then
-    MISSING="$MISSING\n  - REDIS_URL     (add a Redis plugin in Railway)"
+    MISSING="$MISSING\n  - REDIS_URL  (add a Redis plugin in Railway)"
 fi
 
 if [ -n "$MISSING" ]; then
@@ -38,41 +42,40 @@ if [ -n "$MISSING" ]; then
     exit 1
 fi
 
-echo "✓ All required environment variables are present"
+echo "✓ Environment variables present"
+echo "  DATABASE_URL prefix: $(echo $DATABASE_URL | cut -c1-20)..."
+echo "  REDIS_URL prefix:    $(echo $REDIS_URL | cut -c1-20)..."
 echo ""
 
-# ── Django system check ───────────────────────────────────────────────────
+# ── Django system check ────────────────────────────────────────────────────
 echo ">>> Running Django system check..."
-python manage.py check --deploy 2>&1
+python manage.py check 2>&1
 CHECK_EXIT=$?
 if [ $CHECK_EXIT -ne 0 ]; then
-    echo ""
-    echo "ERROR: Django system check failed (exit code $CHECK_EXIT)"
-    echo "Fix the errors above, then redeploy."
+    echo "ERROR: Django check failed (exit $CHECK_EXIT). Fix errors above and redeploy."
     exit $CHECK_EXIT
 fi
 echo "✓ Django check passed"
 echo ""
 
-# ── Database migrations ───────────────────────────────────────────────────
+# ── Migrations ─────────────────────────────────────────────────────────────
 echo ">>> Running migrations..."
 python manage.py migrate --noinput 2>&1
 MIGRATE_EXIT=$?
 if [ $MIGRATE_EXIT -ne 0 ]; then
-    echo ""
-    echo "ERROR: migrate failed (exit code $MIGRATE_EXIT)"
+    echo "ERROR: migrate failed (exit $MIGRATE_EXIT)"
     exit $MIGRATE_EXIT
 fi
 echo "✓ Migrations complete"
 echo ""
 
-# ── Static files ──────────────────────────────────────────────────────────
+# ── Static files ───────────────────────────────────────────────────────────
 echo ">>> Collecting static files..."
 python manage.py collectstatic --noinput --clear 2>&1
 echo "✓ Static files collected"
 echo ""
 
-# ── Start Gunicorn ────────────────────────────────────────────────────────
+# ── Start server ───────────────────────────────────────────────────────────
 echo ">>> Starting Gunicorn on port ${PORT:-8000}..."
 exec gunicorn config.asgi:application \
     -k uvicorn.workers.UvicornWorker \
