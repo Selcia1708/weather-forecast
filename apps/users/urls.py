@@ -12,10 +12,6 @@ def health(request):
     return JsonResponse({"status": "ok"})
 
 urlpatterns = [
-    path("health/", health),
-]
-
-urlpatterns = [
     path('register/',      RegisterView.as_view(),      name='auth-register'),
     path('login/',         TokenObtainPairView.as_view(),name='auth-login'),
     path('token/refresh/', TokenRefreshView.as_view(),   name='token-refresh'),
@@ -24,3 +20,4 @@ urlpatterns = [
     path('preferences/',   PreferencesView.as_view(),     name='auth-preferences'),
 
 ]
+
