@@ -29,7 +29,7 @@ def refresh_weather_for_location(self, location_id: int):
         if hasattr(loc, 'user') and loc.user and hasattr(loc.user, 'preferences'):
             units = loc.user.preferences.units
 
-        raw     = weather_service.get_forecast(float(loc.latitude), float(loc.longitude), units)
+        raw     = weather_service.get_one_call(float(loc.latitude), float(loc.longitude), units)
         current = weather_service.parse_current(raw)
         daily   = weather_service.parse_daily(raw)
         hourly  = weather_service.parse_hourly(raw)
@@ -186,4 +186,5 @@ def purge_old_snapshots():
     cutoff  = timezone.now() - timedelta(days=30)
     deleted, _ = WeatherSnapshot.objects.filter(recorded_at__lt=cutoff).delete()
     aqi_del, _ = AirQuality.objects.filter(recorded_at__lt=cutoff).delete()
+
     logger.info('Purged %d snapshots and %d AQI records', deleted, aqi_del)
